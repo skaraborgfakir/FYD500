@@ -1,0 +1,30 @@
+#! /bin/awk -f
+#
+# Time-stamp: <2019-04-24 20:18:26 stenis>
+#
+# vilken process har störst RSS ?
+#
+
+BEGIN {
+    rss_max=0
+
+    # kör ps i en sub-process och mata data till ps_line_data
+    while (( "/bin/ps ax -l -y" |& getline ps_line_data) > 0)
+    {
+	# dela upp ps_line_data
+	split(ps_line_data, ps_line_splitted, " ")
+	# första raden, där är rätt fält 'RSS' - bort med den !
+	if (ps_line_splitted[8] ~ /[1-9][0-9]*/ )
+	{
+	    # om fältet är större än nuvarande rss_max, byt ut rss_max
+	    if (ps_line_splitted[8] > rss_max)
+		rss_max=ps_line_splitted[8]
+	}
+    }
+
+    print "RSS maxvärde: ", rss_max
+}
+   
+# Local Variables:
+# mode: awk
+# End:
