@@ -19,5 +19,8 @@ BEGIN {
 	rss_summed=ps_splitted[8]+rss_summed
     }
     print "RSS summerad: ", rss_summed
-    # print "command: ", ps_line_data;
 }
+
+# Local Variables:
+# mode: awk
+# End:

@@ -1,0 +1,392 @@
+\documentclass[a4paper]{article}
+
+\begin{document}
+
+\begin{verbatim}
+top/ps enbart de processer som delar
+   tty med det skal som ps körs via
+
+8379 (skalets PID)
+pts/2
+ps -e / ps aux
+
+find / --- det finns mycket data i Chalmers datornät
+       --- i varje fall listas alla filer som min användare kommer åt
+       --- i nätverket... sys:procenten i top gick upp till 40-50
+       --- datorn jobbar så hårt som den kan beroende på hur snabbt
+       --- nätverket är...
+\caption{ps, tty och find}
+\end{verbatim}
+
+
+\begin{figure}
+\centering
+\begin{verbatim}
+[stenis@16 ~]$ xeyes &
+[1] 24273 
+[stenis@16 ~]$ xclock &
+[2] 2427
+[stenis@16 ~]$ kill %1 %2
+[stenis@16 ~]$ 
+\end{verbatim}
+\caption{kommandot 'xeyes och xclock med ''kill''}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\begin{verbatim}
+  PID TTY          TIME CMD
+    1 ?        00:00:11 systemd
+    2 ?        00:00:00 kthreadd
+    3 ?        00:00:00 ksoftirqd/0
+    5 ?        00:00:00 kworker/0:0H
+    7 ?        00:00:01 migration/0
+    8 ?        00:00:00 rcu_bh
+    9 ?        00:01:46 rcu_sched
+   10 ?        00:00:00 lru-add-drain
+   11 ?        00:00:00 watchdog/0
+   12 ?        00:00:00 watchdog/1
+   13 ?        00:00:01 migration/1
+   14 ?        00:00:00 ksoftirqd/1
+   16 ?        00:00:00 kworker/1:0H
+   17 ?        00:00:00 watchdog/2
+   18 ?        00:00:01 migration/2
+   19 ?        00:00:00 ksoftirqd/2
+   21 ?        00:00:00 kworker/2:0H
+   22 ?        00:00:00 watchdog/3
+   23 ?        00:00:01 migration/3
+   24 ?        00:00:05 ksoftirqd/3
+   26 ?        00:00:00 kworker/3:0H
+   28 ?        00:00:00 kdevtmpfs
+   29 ?        00:00:00 netns
+   30 ?        00:00:00 khungtaskd
+   31 ?        00:00:00 writeback
+   32 ?        00:00:00 kintegrityd
+   33 ?        00:00:00 bioset
+   34 ?        00:00:00 bioset
+   35 ?        00:00:00 bioset
+   36 ?        00:00:00 kblockd
+   37 ?        00:00:00 md
+   38 ?        00:00:00 edac-poller
+   39 ?        00:00:00 watchdogd
+   45 ?        00:00:00 kswapd0
+   46 ?        00:00:00 ksmd
+   47 ?        00:00:00 khugepaged
+   48 ?        00:00:00 crypto
+   56 ?        00:00:00 kthrotld
+   59 ?        00:00:00 kmpath_rdacd
+   60 ?        00:00:00 kaluad
+   62 ?        00:00:00 kpsmoused
+   64 ?        00:00:00 ipv6_addrconf
+   77 ?        00:00:00 deferwq
+  111 ?        00:00:00 kauditd
+  267 ?        00:00:00 rpciod
+  268 ?        00:00:00 xprtiod
+  533 ?        00:00:26 firefox
+  602 ?        00:00:00 iscsi_eh
+  778 pts/1    00:00:00 xdvi-xaw
+  942 ?        00:00:00 ata_sff
+ 1054 ?        00:00:00 scsi_eh_0
+ 1059 ?        00:00:00 scsi_tmf_0
+ 1064 ?        00:00:00 scsi_eh_1
+ 1069 ?        00:00:00 scsi_tmf_1
+ 1080 ?        00:00:00 scsi_eh_2
+ 1092 ?        00:00:00 scsi_tmf_2
+ 1112 ?        00:00:00 scsi_eh_3
+ 1115 ?        00:00:00 scsi_tmf_3
+ 1147 ?        00:00:09 Web Content
+ 1710 ?        00:00:00 afs_pagecopy
+ 1721 ?        00:00:00 afs_rxlistener
+ 1723 ?        00:00:00 afsd
+ 1724 ?        00:00:02 afs_rxevent
+ 1726 ?        00:00:00 afs_callback
+ 1730 ?        00:00:00 afsd
+ 1731 ?        00:00:00 afs_checkserver
+ 1732 ?        00:00:00 afs_background
+ 1736 ?        00:00:00 afs_background
+ 1737 ?        00:00:00 afs_background
+ 1738 ?        00:00:00 afs_background
+ 1740 ?        00:00:00 afs_cachetrim
+ 1747 ?        00:00:00 sshd
+ 1865 ?        00:00:08 sh
+ 1868 ?        00:00:00 gdm
+ 1878 ?        00:00:00 accounts-daemon
+ 1963 ?        00:00:00 upowerd
+ 2343 ?        00:00:00 boltd
+ 2345 ?        00:00:00 packagekitd
+ 2353 ?        00:00:00 wpa_supplicant
+ 2415 ?        00:00:00 colord
+ 2426 ?        00:00:00 sleep
+ 2442 ?        00:00:31 pcscd
+ 2609 ?        00:00:01 kworker/0:1H
+ 2610 ?        00:00:01 kworker/1:1H
+ 2638 ?        00:00:00 kworker/u9:0
+ 2639 ?        00:00:00 i915/signal:0
+ 2640 ?        00:00:00 i915/signal:1
+ 2641 ?        00:00:00 i915/signal:2
+ 2642 ?        00:00:00 i915/signal:6
+ 2732 ?        00:00:00 jbd2/sda5-8
+ 2733 ?        00:00:00 ext4-rsv-conver
+ 2835 ?        00:00:00 systemd-journal
+ 2869 ?        00:00:00 lvmetad
+ 2884 ?        00:00:00 systemd-udevd
+ 3323 ?        00:00:00 sleep
+ 3325 ?        00:00:00 ps
+ 3725 ?        00:00:07 emacs
+ 4083 ?        00:00:00 irq/128-mei_me
+ 4444 ?        00:00:00 nvidia-modeset
+ 4532 ?        00:00:00 kvm-irqfd-clean
+ 4698 ?        00:00:00 jbd2/sda3-8
+ 4715 ?        00:00:00 ext4-rsv-conver
+ 5446 ?        00:00:00 jbd2/sda6-8
+ 5457 ?        00:00:00 ext4-rsv-conver
+ 5684 ?        00:00:00 auditd
+ 5686 ?        00:00:00 audispd
+ 5688 ?        00:00:00 sedispatch
+ 5720 ?        00:00:06 udisksd
+ 5724 ?        00:00:05 irqbalance
+ 5727 ?        00:00:00 lsmd
+ 5728 ?        00:00:01 gpm
+ 5732 ?        00:00:02 polkitd
+ 5733 ?        00:00:06 rngd
+ 5735 ?        00:00:01 dbus-daemon
+ 5737 ?        00:00:05 chronyd
+ 5777 ?        00:00:00 acpid
+ 5785 ?        00:00:00 rpcbind
+ 5836 ?        00:00:00 smartd
+ 5839 ?        00:00:00 rtkit-daemon
+ 5843 ?        00:00:00 alsactl
+ 5844 ?        00:00:00 systemd-logind
+ 5846 ?        00:00:00 ModemManager
+ 5865 ?        00:00:45 nscd
+ 5866 ?        00:00:00 mcelog
+ 5881 ?        00:00:00 NetworkManager
+ 5900 ?        00:00:02 kworker/3:1H
+ 5901 ?        00:00:02 kworker/2:1H
+ 5903 ?        00:00:00 ksmtuned
+ 5905 ?        00:00:00 gssproxy
+ 5933 ?        00:00:00 rpc.gssd
+ 5960 ?        00:00:00 denyhosts.py
+ 6049 ?        00:00:00 dhclient
+ 6294 ?        00:00:06 tuned
+ 6296 ?        00:00:02 rsyslogd
+ 6302 ?        00:00:00 libvirtd
+ 6304 ?        00:00:00 rhsmcertd
+ 6306 ?        00:00:00 atd
+ 6307 ?        00:00:00 crond
+ 6340 ?        00:00:02 automount
+ 6405 ?        00:01:14 venus
+ 6624 ?        00:00:00 unbound
+ 6625 ?        00:00:00 dnssec-triggerd
+ 6641 ?        00:00:00 rpc.statd
+ 6664 ?        00:00:01 kworker/1:3
+ 6779 ?        00:00:00 dnsmasq
+ 6780 ?        00:00:00 dnsmasq
+ 6823 ?        00:00:00 master
+ 6825 ?        00:00:00 qmgr
+ 7443 ?        00:00:00 libc.so
+ 7542 pts/1    00:00:00 bash
+ 8109 ?        00:00:00 kworker/2:1
+ 8377 pts/0    00:00:00 screen
+ 8378 ?        00:00:00 screen
+ 8379 pts/2    00:00:00 bash
+ 8627 ?        00:00:00 nfsiod
+ 8654 ?        00:00:00 nfsv4.1-svc
+ 8790 pts/3    00:00:00 bash
+ 8881 pts/3    00:00:01 top
+11034 ?        00:00:03 Web Content
+11064 pts/2    00:00:00 vim
+14551 tty2     00:00:00 agetty
+14555 tty3     00:00:00 agetty
+14557 tty4     00:00:00 agetty
+16227 tty1     00:00:24 X
+16229 ?        00:01:49 irq/130-nvidia
+16230 ?        00:00:00 nvidia
+16809 ?        00:00:00 kworker/0:1
+17147 ?        00:00:00 kworker/1:1
+17567 ?        00:00:00 kworker/2:0
+20578 ?        00:00:00 Web Content
+21336 ?        00:00:00 kworker/3:1
+21346 ?        00:00:00 gvfsd-network
+21469 ?        00:00:00 gvfsd-dnssd
+23170 ?        00:00:00 gdm-session-wor
+23432 ?        00:00:00 pickup
+24739 ?        00:00:00 kworker/3:0
+24760 ?        00:00:00 gnome-keyring-d
+24766 ?        00:00:00 ibus-daemon
+24769 ?        00:00:00 ibus-dconf
+24771 ?        00:00:00 ibus-x11
+24783 ?        00:00:00 gnome-session-b
+24792 ?        00:00:00 dbus-launch
+24793 ?        00:00:00 dbus-daemon
+24861 ?        00:00:00 imsettings-daem
+24866 ?        00:00:00 gvfsd
+24871 ?        00:00:00 gvfsd-fuse
+25055 ?        00:00:00 ssh-agent
+25147 ?        00:00:00 at-spi-bus-laun
+25152 ?        00:00:00 dbus-daemon
+25154 ?        00:00:00 at-spi2-registr
+25183 ?        00:01:10 gnome-shell
+25509 ?        00:00:00 pulseaudio
+25520 ?        00:00:00 kworker/u8:1
+25529 ?        00:00:00 ibus-daemon
+25538 ?        00:00:00 xdg-permission-
+25543 ?        00:00:00 gnome-shell-cal
+25549 ?        00:00:00 evolution-sourc
+25564 ?        00:00:00 dconf-service
+25566 ?        00:00:00 ibus-dconf
+25571 ?        00:00:00 ibus-x11
+25575 ?        00:00:00 ibus-portal
+25592 ?        00:00:00 mission-control
+25595 ?        00:00:00 gvfs-udisks2-vo
+25600 ?        00:00:00 goa-daemon
+25608 ?        00:00:00 gvfs-afc-volume
+25619 ?        00:00:00 gvfs-gphoto2-vo
+25623 ?        00:00:00 goa-identity-se
+25629 ?        00:00:00 gvfs-mtp-volume
+25637 ?        00:00:00 gvfs-goa-volume
+25681 ?        00:00:00 gsd-account
+25685 ?        00:00:00 gsd-power
+25686 ?        00:00:00 gsd-print-notif
+25688 ?        00:00:00 gsd-rfkill
+25689 ?        00:00:00 gsd-screensaver
+25690 ?        00:00:00 gsd-sharing
+25692 ?        00:00:00 gsd-smartcard
+25700 ?        00:00:00 gsd-sound
+25702 ?        00:00:00 gsd-xsettings
+25704 ?        00:00:00 gsd-wacom
+25714 ?        00:00:00 gsd-a11y-settin
+25717 ?        00:00:00 gsd-clipboard
+25722 ?        00:00:00 gsd-color
+25723 ?        00:00:00 gsd-datetime
+25724 ?        00:00:00 gsd-housekeepin
+25725 ?        00:00:00 gsd-keyboard
+25727 ?        00:00:00 gsd-media-keys
+25734 ?        00:00:00 gsd-mouse
+25751 ?        00:00:00 gsd-printer
+25801 ?        00:00:00 nautilus-deskto
+25806 ?        00:00:00 gvfsd-trash
+25820 ?        00:00:00 dnssec-trigger
+25822 ?        00:00:00 tracker-extract
+25826 ?        00:00:00 tracker-miner-a
+25832 ?        00:00:00 evolution-alarm
+25840 ?        00:00:00 tracker-miner-f
+25841 ?        00:00:00 tracker-store
+25848 ?        00:00:00 clevis-luks-udi
+25849 ?        00:00:00 tracker-miner-u
+25853 ?        00:00:00 gsd-disk-utilit
+25901 ?        00:00:00 clevis-luks-udi
+25949 ?        00:00:00 evolution-calen
+25950 ?        00:00:00 escd
+25994 ?        00:00:00 ibus-engine-sim
+26015 ?        00:00:00 evolution-calen
+26047 ?        00:00:00 evolution-addre
+26060 ?        00:00:00 gvfsd-metadata
+26089 ?        00:00:00 evolution-addre
+26134 ?        00:00:00 gvfsd-burn
+27269 ?        00:00:00 kworker/0:2
+27282 ?        00:00:00 gconfd-2
+27466 ?        00:00:00 kworker/u8:5
+28013 ?        00:00:01 xterm
+28015 pts/0    00:00:00 bash
+30017 ?        00:00:00 kworker/0:0
+32531 ?        00:00:00 kworker/u8:0
+32700 ?        00:00:00 kworker/1:0
+\end{verbatim}
+\caption{kommandot 'ps -e' i terminal}
+\end{figure}
+
+
+\begin{figure}
+\begin{verbatim}
+[stenis@16 ~]$ 
+Message from stenis@16.f7203.studat.rh75.ii.htb on pts/3 at 19:40 ...
+[    0.000000] Initializing cgroup subsys cpuset
+[    0.000000] Initializing cgroup subsys cpu
+[    0.000000] Initializing cgroup subsys cpuacct
+[    0.000000] Linux version 3.10.0-957.10.1.el7.x86_64 (mockbuild@x86-040.build.eng.bos
+[    0.000000] Command line: BOOT_IMAGE=/vmlinuz-3.10.0-957.10.1.el7.x86_64 root=/dev/sd
+[    0.000000] e820: BIOS-provided physical RAM map:
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009c3ff] usable
+[    0.000000] BIOS-e820: [mem 0x000000000009c400-0x000000000009ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000000100000-0x00000000859a3fff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000859a4000-0x00000000859a4fff] ACPI NVS
+[    0.000000] BIOS-e820: [mem 0x00000000859a5000-0x00000000859a5fff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000859a6000-0x0000000093466fff] usable
+[    0.000000] BIOS-e820: [mem 0x0000000093467000-0x00000000936a5fff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000936a6000-0x00000000936e8fff] ACPI data
+[    0.000000] BIOS-e820: [mem 0x00000000936e9000-0x0000000094009fff] ACPI NVS
+[    0.000000] BIOS-e820: [mem 0x000000009400a000-0x00000000945fefff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000945ff000-0x00000000945fffff] usable
+[    0.000000] BIOS-e820: [mem 0x0000000094600000-0x0000000097ffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000f8000000-0x00000000fbffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fe000000-0x00000000fe010fff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fec00000-0x00000000fec00fff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fee00000-0x00000000fee00fff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000100000000-0x0000000865ffffff] usable
+[    0.000000] NX (Execute Disable) protection: active
+[    0.000000] SMBIOS 3.0 present.
+[    0.000000] DMI: Dell Inc. Precision Tower 3620/0MWYPT, BIOS 2.7.3 01/31/2018
+[    0.000000] e820: update [mem 0x00000000-0x00000fff] usable ==> reserved
+[    0.000000] e820: remove [mem 0x000a0000-0x000fffff] usable
+[    0.000000] e820: last_pfn = 0x866000 max_arch_pfn = 0x400000000
+[    0.000000] MTRR default type: write-back
+[    0.000000] MTRR fixed ranges enabled:
+[    0.000000]   00000-9FFFF write-back
+[    0.000000]   A0000-BFFFF uncachable
+[    0.000000]   C0000-FFFFF write-protect
+[    0.000000] MTRR variable ranges enabled:
+[    0.000000]   0 base 00C0000000 mask 7FC0000000 uncachable
+[    0.000000]   1 base 00A0000000 mask 7FE0000000 uncachable
+...
+..
+[   84.007067] nvidia 0000:01:00.0: irq 130 for MSI/MSI-X
+[   84.854870] nvidia-modeset: Allocated GPU:0 (GPU-b0717a24-999a-e2f4-cf
+[ 1046.116274] fuse init (API version 7.22)
+[ 2802.768066] traps: TaskSchedulerSi[29816] trap int3 ip:563149e0eebe sp
+[ 2803.323018] nvidia-modeset: Freed GPU:0 (GPU-b0717a24-999a-e2f4-cf94-2
+[ 2803.391135] nvidia 0000:01:00.0: irq 130 for MSI/MSI-X
+[ 2804.054975] nvidia-modeset: Allocated GPU:0 (GPU-b0717a24-999a-e2f4-cf
+\end{verbatim}
+\caption{kommandot 'dmesg | write stenis pts/2' från pts/3}
+\end{figure}
+Vilket är vad kärnan hittar om vad som finns i form av hårdvara i maskinen.
+
+\begin{figure}
+\begin{verbatim}
+[stenis@16 ~]$ uptime
+19:46:48 up 19:12,  5 users,  load average: 0.01, 0.05, 0.12
+[stenis@16 ~]$ tty
+/dev/pts/4
+\end{verbatim}
+\caption{uptime och tty}
+\end{figure}
+
+
+\begin{figure}
+\begin{verbatim}
+[stenis@16 ~]$ ls -l /usr/bin/|grep '^-..s' 
+-rwsr-xr-x.   1 root root       52952 Sep 14  2017 at
+-rwsr-xr-x.   1 root root       64232 Jun 28  2016 chage
+-rws--x--x.   1 root root       24048 Feb  2  2018 chfn
+-rws--x--x.   1 root root       23960 Feb  2  2018 chsh
+\end{verbatim}
+\caption{SUID kommandon}
+\end{figure}
+
+chfn kan ändra de ``lite längre personuppgifterna'' om en användare i Linux
+och behöver därför kunna ändra i /etc/passwd. Den fil som förr räknade upp en maskins
+användare.
+
+chsh ändrar vilket skal som en användare använder, på samma vis som chfn.
+/etc/passwd är skrivskyddad för alla förutom systemadministratör.
+
+Vem som är största tidstjuven --- gnome-shell eller firefox (webbläsaren.)
+
+Ja, jag kan köra reboot --- jag får göra så troligtvis därför att maskinen enbart används
+av en person åt gången.
+
+\end{document}
