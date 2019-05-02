@@ -1,0 +1,23 @@
+#! /bin/awk -f
+#
+# Time-stamp: <2019-04-24 20:18:26 stenis>
+#
+# summera hur många byte mina filer innehåller
+#
+
+BEGIN {
+    summ = 0
+    # kör find i en sub-process och mata data till find_line_data
+    while (( "/bin/find ~ -type f -ls" |& getline find_line_data) > 0)
+    {
+	# dela upp find_line_data
+	split(find_line_data, find_line_splitted, " ")
+	summ = summ + find_line_splitted[7]
+    }
+    
+    print "storlekssumma:", summ
+}
+
+# Local Variables:
+# mode: awk
+# End:

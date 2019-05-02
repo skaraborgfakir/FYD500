@@ -1,0 +1,19 @@
+#! /bin/awk -f
+#
+# Time-stamp: <2019-04-24 20:18:26 stenis>
+#
+# summera hur många byte mina filer innehåller
+#
+
+BEGIN {
+    # kör find i en sub-process och mata data till find_line_data
+    while (( "cd /usr/bin ; /bin/find . -type f" |& getline find_line_data) > 0)
+	if ( find_line_data ~ /.\/.r/ )
+	{
+	    print find_line_data
+	}
+}
+   
+# Local Variables:
+# mode: awk
+# End:
