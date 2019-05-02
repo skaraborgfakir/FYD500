@@ -1,0 +1,23 @@
+#! /bin/awk -f
+#
+# Time-stamp: <2019-04-24 20:18:26 stenis>
+#
+# läs från /proc
+# summerara RSS för samtliga processer
+#
+
+function usage()
+{
+    print "./awk_test"
+    exit 1
+}
+
+BEGIN {
+    while (( "/bin/ps ax -l -y" |& getline ps_line_data) > 0)
+    {
+	split(ps_line_data, ps_splitted, " ")
+	rss_summed=ps_splitted[8]+rss_summed
+    }
+    print "RSS summerad: ", rss_summed
+    # print "command: ", ps_line_data;
+}
