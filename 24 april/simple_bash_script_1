@@ -1,0 +1,76 @@
+#!/bin/ksh93
+#
+# Time-stamp: <2019-04-24 19:42:10 stenis>
+#
+# plocka vissa data om systemet
+# behandla med awk och presentera resultat
+# 
+
+for args in $* ; do
+    case "${args}" in
+ 	-h) show_homedir=1;;
+ 	-s) show_shell=1;;
+ 	-m) show_memory=1;;
+ 	-p) show_n_procs=1;;
+ 	--help) show_help=1;;
+	*) bad_args=1;;
+    esac 
+done
+
+if [ ${bad_args} ]; then
+    exit 2
+fi
+
+if [ ${show_help} ]; then
+    echo "Usage: $0 [-h] [-s] [-p] [-m] [--help]"
+    exit 0
+fi
+
+who_am_i=$(/bin/id -u)
+
+# hämta ur etc/passwd mha awk
+# getent passwd stenis
+# dela på ':' och skriv ut från position 6
+homedir=$(/bin/getent passwd ${who_am_i} | /bin/awk --field-separator ':' '{ print $6 }')
+# variabel i de flesta skalen
+my_shell=${SHELL}
+# på samma vis som för homedir
+my_login_shell=$(/bin/getent passwd ${who_am_i} | /bin/awk --field-separator ':' '{ print $7 }')
+
+
+# hur många mappar i /proc som enbart har siffror i namnet ?
+n_procs=$(/bin/find /proc -maxdepth 1  -type d -name '[1-9]*'|/bin/wc -l)
+
+result=1
+
+if [ ${show_homedir} ]; then
+    echo "homedir = ${homedir}"
+    result=0
+fi
+
+if [ ${show_shell} ]; then
+    echo "my_shell = ${my_shell}"
+    echo "my_login_shell = ${my_login_shell}"
+    result=0
+fi
+
+if [ ${show_memory} ]; then
+    # hämta från /proc/meminfo och awk
+    amount_of_mem=$( /bin/awk '/^MemTotal/ { print $2 }' < /proc/meminfo)
+    amount_of_swap=$( /bin/awk '/^SwapTotal/ { print $2 }' < /proc/meminfo)
+
+    echo "amount of mem = ${amount_of_mem}"
+    echo "amount of swap = ${amount_of_swap}"
+    result=0
+fi
+
+if [ ${show_n_procs} ]; then
+    echo "n_procs = ${n_procs}"
+    result=0
+fi
+
+exit ${result}
+
+# Local Variables:
+# mode: sh
+# End:
