@@ -1,0 +1,32 @@
+#! /bin/awk -f
+#
+# Time-stamp: <2019-04-24 20:18:26 stenis>
+#
+# konvertera CSV data till LDIF
+# exemepel:
+#   johnny:Johnny:Melin:0544344
+#   jm:Jonas:Melin:054222
+# till:
+#   dn: uid=johnny, dc=example, dc=com
+#   cn: Johnny Melin
+#   sn: Melin
+#   telephoneNumber: 0544344
+#
+#   dn: uid=jm, dc=example, dc=com
+#   cn: Jonas Melin
+#   sn: Melin
+#   telephoneNumber: 054222
+#
+
+BEGIN { FS = ":"; OFS="" }
+{
+    print "dn: uid=",$1,", dc=example, dc=com"
+    print "cn: ",$2," ",$3
+    print "sn: ",$2
+    print "telephoneNumber: ",$4
+    print ""
+}
+    
+# Local Variables:
+# mode: awk
+# End:
