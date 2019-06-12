@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Time-stamp: <2019-06-12 21:00:11 stenis>
+# Time-stamp: <2019-06-12 21:06:57 stenis>
 #
 
 DEBUGMODE=1
@@ -131,6 +131,7 @@ trap reloadconfig 1
 # fånga INTERRUPT - kopiera logg och avsluta
 trap copyloggandquit 2
 
+
 cat /dev/null > ${LOGFILE}
 while : ; do
     if [ $checkl2cache="true" ]; then
@@ -149,6 +150,5 @@ while : ; do
 	run_checkbashmodify
     fi
 
-
-    sleep $INTERVAL
+    sleep ${INTERVAL}
 done

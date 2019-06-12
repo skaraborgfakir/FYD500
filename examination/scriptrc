@@ -1,0 +1,6 @@
+-processes:stenis,pdale
+-home:stenis,fyra,patjo
+-interval:10
+-output:/chalmers/users/stenis/log/script.log
+-bashmodifytime
+-l2cache
