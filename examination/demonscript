@@ -1,0 +1,154 @@
+#!/bin/sh
+#
+# Time-stamp: <2019-06-12 21:00:11 stenis>
+#
+
+DEBUGMODE=1
+CONFIGFILE=/chalmers/users/stenis/etc/scriptrc
+
+usage(){
+    cat - <<EOF
+    -h help display
+    -c:/path/to/the/programs/rc/file
+EOF
+}
+
+
+loadconfig(){
+    #
+    # flaggor med argument
+    # ensamt argument
+    LOGFILE=$(/bin/awk --assign  FS=':' '/^-output:/ {print $2}'< ${CONFIGFILE})
+    INTERVAL=$(/bin/awk --assign  FS=':' '/^-interval:/ {print $2}'< ${CONFIGFILE})
+    #
+    # flera argument
+    HOMEFOLDERSTOCHECK=$(/bin/awk --assign FS=':' '/^-home:/ {homedirs=gensub(/,/, " ", "g", $2); print homedirs}'< ${CONFIGFILE})
+    PROCSTOCHECK=$(/bin/awk --assign  FS=':' '/^-processes:/ {procs=gensub(/,/, " ", "g", $2); print procs}'< ${CONFIGFILE})
+
+    #
+    # enbart flaggor, inget argument
+    if /bin/awk 'BEGIN {res=1} /^-bashmodifytime/ {res=0} END {exit res}' ${CONFIGFILE}; then
+	checkbash=true
+    fi
+
+    if /bin/awk 'BEGIN {res=1} /^-l2cache/ {res=0} END {exit res}' ${CONFIGFILE}; then
+	checkl2cache=true
+    fi
+
+    #
+    # alternativ:
+    # låt awk omvandla rc:filen till något som skalet självt kan evaluera,
+    # sedan är skalets eval användbart
+    #
+    # den här versionen är lite oelegant
+
+    if [ ! -z ${DEBUGMODE} ]; then
+	echo CONFIGFILE ${CONFIGFILE}
+
+	echo LOGFILE $LOGFILE
+	echo HOMEFOLDERSTOCHECK $HOMEFOLDERSTOCHECK
+	echo PROCSTOCHECK $PROCSTOCHECK
+	echo INTERVAL $INTERVAL
+
+	if [ $checkl2cache="true" ]; then
+	    echo checkl2cache true
+	fi
+	if [ $checkbash="true" ]; then
+	    echo checkbash true
+	fi
+    fi
+}
+
+reloadconfig()
+{
+    echo config reload at $(/bin/date)
+    loadconfig
+}
+
+copyloggandquit(){
+    cd $(dirname ${LOGFILE})
+    /bin/cp $(/bin/basename ${LOGFILE}) $(/bin/basename ${LOGFILE}).$(/bin/date +%H%M_%Z)
+    exit 0
+}
+
+if [ $# -eq 1 ]; then
+    case $* in
+	-c*)
+	    CONFIGFILE=$(echo $1|/bin/sed -e 's/-c://')
+	    ;;
+	-h)
+	    usage
+	    exit 0
+	    ;;
+    esac
+fi
+
+run_checkprocesses()
+{
+    for each in ${PROCSTOCHECK} ; do
+	nrprocs=$(ps -u ${each} |grep -v ' *PID *TTY.*' |wc -l)
+	echo "nprocs ${each} ${nrprocs}" >> ${LOGFILE}
+    done
+}
+
+run_checkhomefolders()
+{
+    for each in ${HOMEFOLDERSTOCHECK} ; do
+	dir=$(getent passwd ${each}| cut -d ':' -f 6)
+	if [ -d ${dir} ]; then
+	    echo "homefolderscheck ${each} $(/bin/du -s ${dir} |cut -f 1 -d ' ')" >> ${LOGFILE}
+	fi
+    done
+}
+
+run_checkl2cache()
+{
+    declare -i sum
+    declare -i amount_of_cache
+
+    indexdirs=$(/bin/find /sys/devices/system/cpu -type d -name index* )
+    for each in ${indexdirs}; do
+	if /bin/grep -e 2 "${each}/level" >/dev/null 2>&1 ; then
+	    amount_of_cache=$( /bin/awk '/[1-9][0-9]+K/ { inkilob=gensub( /K/, "", "g", $0); print inkilob * 1024}' "${each}/size" )
+	    let "sum = sum + amount_of_cache"
+	fi
+    done
+    echo "l2cache: ${sum}" >> ${LOGFILE}
+}
+
+run_checkbashmodify()
+{
+    let "timestamp = $(date +%s) - $(/bin/ls -l --time-style=+%s /bin/bash|/bin/cut -f 6 -d ' ')"
+    let "timestamp = timestamp / 3600"
+    echo "bashtimestamp ${timestamp}" >> "${LOGFILE}"
+}
+
+
+loadconfig
+
+# fånga HANGUP    - läs om konfigurationsfilen
+trap reloadconfig 1
+# fånga INTERRUPT - kopiera logg och avsluta
+trap copyloggandquit 2
+
+cat /dev/null > ${LOGFILE}
+while : ; do
+    if [ $checkl2cache="true" ]; then
+	run_checkl2cache
+    fi
+
+    if [ -n "${HOMEFOLDERSTOCHECK}" ]; then
+	run_checkhomefolders
+    fi
+
+    if [ -n "${PROCSTOCHECK}" ]; then
+	run_checkprocesses
+    fi
+    
+    if [ $checkbash="true" ]; then
+	run_checkbashmodify
+    fi
+
+
+    sleep $INTERVAL
+done
