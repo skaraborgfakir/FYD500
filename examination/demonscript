@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Time-stamp: <2019-06-17 16:33:38 stefan>
+# Time-stamp: <2019-06-17 16:57:35 stefan>
 #
 
 DEBUGMODE=0
@@ -10,9 +10,12 @@ CMD_NAME=${0}
 
 usage(){
     cat - <<EOF
-${CMD_NAME}
+Usage: ${CMD_NAME} [flag]
+legal values of flag:
     -h help display
     -c:/path/to/the/programs/rc/file
+    -d
+    -d:number
 EOF
 }
 
@@ -136,26 +139,27 @@ dumpconfig(){
 # what to be done
 #
 set -x
-if [ -n "${*}" ]; then
-    while [ -n "${*}" ]; do
-	case "${1}" in
-	    -c*)
-		CONFIGFILE=$(echo $1|/bin/sed -e 's/-c://')
-		;;
-	    -d)
+while [ -n "${1}" ]; do
+    case "${1}" in
+	-c*)
+	    CONFIGFILE=$(echo $1|/bin/sed -e 's/-c://')
+	    ;;
+	-d=*) DEBUGMODE=$(echo ${1} | /usr/bin/awk --assign  FS=':' '// {print $2}')
+	     ;;
+	-d)
+	    if [ ${DEBUGMODE} = 0 ]; then
 		DEBUGMODE=1
-		;;
-	    -d*) DEBUGMODE=$(echo ${1} | /usr/bin/awk --assign  FS='=' '// {print $2}')
-		;;
-	    -h)
-		usage
-		exit 0
-		;;
-	esac
+	    fi
+	    ;;
+	-h)
+	    usage
+	    exit 0
+	    ;;
+    esac
 
-	shift
-    done
-fi
+    shift
+done
+
 
 loadconfig
 
