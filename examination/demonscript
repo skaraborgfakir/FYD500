@@ -1,38 +1,45 @@
-#!/bin/sh
+#!/bin/bash
 #
-# Time-stamp: <2019-06-12 21:06:57 stenis>
+# Time-stamp: <2019-06-17 16:33:38 stefan>
 #
 
-DEBUGMODE=1
-CONFIGFILE=/chalmers/users/stenis/etc/scriptrc
+DEBUGMODE=0
+CONFIGFILE=/home/stefan/etc/scriptrc
+
+CMD_NAME=${0}
 
 usage(){
     cat - <<EOF
+${CMD_NAME}
     -h help display
     -c:/path/to/the/programs/rc/file
 EOF
 }
 
-
 loadconfig(){
     #
     # flaggor med argument
     # ensamt argument
-    LOGFILE=$(/bin/awk --assign  FS=':' '/^-output:/ {print $2}'< ${CONFIGFILE})
-    INTERVAL=$(/bin/awk --assign  FS=':' '/^-interval:/ {print $2}'< ${CONFIGFILE})
+    LOGFILE=$(/usr/bin/awk --assign  FS=':' '/^-output:/ {print $2}'< ${CONFIGFILE})
+    INTERVAL=$(/usr/bin/awk --assign  FS=':' '/^-interval:/ {print $2}'< ${CONFIGFILE})
+
     #
     # flera argument
-    HOMEFOLDERSTOCHECK=$(/bin/awk --assign FS=':' '/^-home:/ {homedirs=gensub(/,/, " ", "g", $2); print homedirs}'< ${CONFIGFILE})
-    PROCSTOCHECK=$(/bin/awk --assign  FS=':' '/^-processes:/ {procs=gensub(/,/, " ", "g", $2); print procs}'< ${CONFIGFILE})
+    HOMEFOLDERSTOCHECK=$(/usr/bin/awk --assign FS=':' '/^-home:/ {homedirs=gensub(/,/, " ", "g", $2); print homedirs}'< ${CONFIGFILE})
+    PROCSTOCHECK=$(/usr/bin/awk --assign  FS=':' '/^-processes:/ {procs=gensub(/,/, " ", "g", $2); print procs}'< ${CONFIGFILE})
 
     #
     # enbart flaggor, inget argument
-    if /bin/awk 'BEGIN {res=1} /^-bashmodifytime/ {res=0} END {exit res}' ${CONFIGFILE}; then
+    if /usr/bin/awk 'BEGIN {res=1} /^-bashmodifytime/ {res=0} END {exit res}' ${CONFIGFILE}; then
 	checkbash=true
     fi
 
-    if /bin/awk 'BEGIN {res=1} /^-l2cache/ {res=0} END {exit res}' ${CONFIGFILE}; then
+    if /usr/bin/awk 'BEGIN {res=1} /^-l2cache/ {res=0} END {exit res}' ${CONFIGFILE}; then
 	checkl2cache=true
+    fi
+
+    if [ ${DEBUGMODE} = "0" ]; then
+	DEBUGMODE=$(/usr/bin/awk --assign FS=':' 'BEGIN {res=0} /^-DEBUGMODE:/ {print $2}' < ${CONFIGFILE});
     fi
 
     #
@@ -41,22 +48,6 @@ loadconfig(){
     # sedan är skalets eval användbart
     #
     # den här versionen är lite oelegant
-
-    if [ ! -z ${DEBUGMODE} ]; then
-	echo CONFIGFILE ${CONFIGFILE}
-
-	echo LOGFILE $LOGFILE
-	echo HOMEFOLDERSTOCHECK $HOMEFOLDERSTOCHECK
-	echo PROCSTOCHECK $PROCSTOCHECK
-	echo INTERVAL $INTERVAL
-
-	if [ $checkl2cache="true" ]; then
-	    echo checkl2cache true
-	fi
-	if [ $checkbash="true" ]; then
-	    echo checkbash true
-	fi
-    fi
 }
 
 reloadconfig()
@@ -66,27 +57,24 @@ reloadconfig()
 }
 
 copyloggandquit(){
-    cd $(dirname ${LOGFILE})
-    /bin/cp $(/bin/basename ${LOGFILE}) $(/bin/basename ${LOGFILE}).$(/bin/date +%H%M_%Z)
+    current_basename=$(/bin/basename ${LOGFILE})
+    logdir=$(dirname ${LOGFILE})
+
+    cd ${logdir}
+    #    /bin/cp $(/bin/basename ${LOGFILE}) $(/bin/basename ${LOGFILE}).$(/bin/date +%H%M_%Z)
+    /usr/bin/link ${current_basename} ${current_basename}.$(/bin/date +%H%M_%Z)
+    /bin/rm ${current_basename} && /usr/bin/touch ${current_basename}
+
     exit 0
 }
 
-if [ $# -eq 1 ]; then
-    case $* in
-	-c*)
-	    CONFIGFILE=$(echo $1|/bin/sed -e 's/-c://')
-	    ;;
-	-h)
-	    usage
-	    exit 0
-	    ;;
-    esac
-fi
-
+#
+# worker
+#
 run_checkprocesses()
 {
     for each in ${PROCSTOCHECK} ; do
-	nrprocs=$(ps -u ${each} |grep -v ' *PID *TTY.*' |wc -l)
+	nrprocs=$(/bin/ps -u ${each} |grep -v ' *PID *TTY.*' |wc -l)
 	echo "nprocs ${each} ${nrprocs}" >> ${LOGFILE}
     done
 }
@@ -94,7 +82,7 @@ run_checkprocesses()
 run_checkhomefolders()
 {
     for each in ${HOMEFOLDERSTOCHECK} ; do
-	dir=$(getent passwd ${each}| cut -d ':' -f 6)
+	dir=$(/usr/bin/getent passwd ${each}| cut -d ':' -f 6)
 	if [ -d ${dir} ]; then
 	    echo "homefolderscheck ${each} $(/bin/du -s ${dir} |cut -f 1 -d ' ')" >> ${LOGFILE}
 	fi
@@ -106,10 +94,10 @@ run_checkl2cache()
     declare -i sum
     declare -i amount_of_cache
 
-    indexdirs=$(/bin/find /sys/devices/system/cpu -type d -name index* )
+    indexdirs=$(/usr/bin/find /sys/devices/system/cpu -type d -name index* )
     for each in ${indexdirs}; do
 	if /bin/grep -e 2 "${each}/level" >/dev/null 2>&1 ; then
-	    amount_of_cache=$( /bin/awk '/[1-9][0-9]+K/ { inkilob=gensub( /K/, "", "g", $0); print inkilob * 1024}' "${each}/size" )
+	    amount_of_cache=$( /usr/bin/awk '/[1-9][0-9]+K/ { inkilob=gensub( /K/, "", "g", $0); print inkilob * 1024}' "${each}/size" )
 	    let "sum = sum + amount_of_cache"
 	fi
     done
@@ -123,15 +111,74 @@ run_checkbashmodify()
     echo "bashtimestamp ${timestamp}" >> "${LOGFILE}"
 }
 
+dumpconfig(){
+    if [ ! -z ${DEBUGMODE} ]; then
+	echo CONFIGFILE ${CONFIGFILE}
+
+	echo LOGFILE $LOGFILE
+	echo HOMEFOLDERSTOCHECK $HOMEFOLDERSTOCHECK
+	echo PROCSTOCHECK $PROCSTOCHECK
+	echo INTERVAL $INTERVAL
+
+	echo DEBUGMODE_conf $DEBUGMODE_conf
+	echo DEBUGMODE $DEBUGMODE
+
+	if [ $checkl2cache="true" ]; then
+	    echo checkl2cache true
+	fi
+	if [ $checkbash="true" ]; then
+	    echo checkbash true
+	fi
+    fi
+}
+
+#
+# what to be done
+#
+set -x
+if [ -n "${*}" ]; then
+    while [ -n "${*}" ]; do
+	case "${1}" in
+	    -c*)
+		CONFIGFILE=$(echo $1|/bin/sed -e 's/-c://')
+		;;
+	    -d)
+		DEBUGMODE=1
+		;;
+	    -d*) DEBUGMODE=$(echo ${1} | /usr/bin/awk --assign  FS='=' '// {print $2}')
+		;;
+	    -h)
+		usage
+		exit 0
+		;;
+	esac
+
+	shift
+    done
+fi
 
 loadconfig
+
+if [ "${DEBUGMODE}" != "0" ]; then
+    dumpconfig
+fi
+
+set +x
+
+if [ -w ${LOGFILE} ]; then
+    exit 5
+fi
 
 # fånga HANGUP    - läs om konfigurationsfilen
 trap reloadconfig 1
 # fånga INTERRUPT - kopiera logg och avsluta
 trap copyloggandquit 2
 
+exit 1
 
+#
+# work !
+#
 cat /dev/null > ${LOGFILE}
 while : ; do
     if [ $checkl2cache="true" ]; then
@@ -145,7 +192,7 @@ while : ; do
     if [ -n "${PROCSTOCHECK}" ]; then
 	run_checkprocesses
     fi
-    
+
     if [ $checkbash="true" ]; then
 	run_checkbashmodify
     fi
