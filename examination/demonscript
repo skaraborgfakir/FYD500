@@ -1,14 +1,13 @@
 #!/bin/bash
 #
-# Time-stamp: <2019-06-17 16:57:35 stefan>
+# Time-stamp: <2019-06-17 17:07:45 stefan>
 #
 
+CMD_NAME=${0}
 DEBUGMODE=0
 CONFIGFILE=/home/stefan/etc/scriptrc
 
-CMD_NAME=${0}
-
-usage(){
+function usage(){
     cat - <<EOF
 Usage: ${CMD_NAME} [flag]
 legal values of flag:
@@ -19,11 +18,11 @@ legal values of flag:
 EOF
 }
 
-loadconfig(){
+function loadconfig(){
     #
     # flaggor med argument
     # ensamt argument
-    LOGFILE=$(/usr/bin/awk --assign  FS=':' '/^-output:/ {print $2}'< ${CONFIGFILE})
+    LOGFILE=$(/usr/bin/awk --assign  FS=':' 'BEGIN {res=1} /^-output:/ { res=0 ; print $2 ; exit res}'< ${CONFIGFILE})
     INTERVAL=$(/usr/bin/awk --assign  FS=':' '/^-interval:/ {print $2}'< ${CONFIGFILE})
 
     #
@@ -53,13 +52,13 @@ loadconfig(){
     # den här versionen är lite oelegant
 }
 
-reloadconfig()
+function reloadconfig()
 {
     echo config reload at $(/bin/date)
     loadconfig
 }
 
-copyloggandquit(){
+function copyloggandquit(){
     current_basename=$(/bin/basename ${LOGFILE})
     logdir=$(dirname ${LOGFILE})
 
@@ -74,7 +73,7 @@ copyloggandquit(){
 #
 # worker
 #
-run_checkprocesses()
+function run_checkprocesses()
 {
     for each in ${PROCSTOCHECK} ; do
 	nrprocs=$(/bin/ps -u ${each} |grep -v ' *PID *TTY.*' |wc -l)
@@ -82,7 +81,7 @@ run_checkprocesses()
     done
 }
 
-run_checkhomefolders()
+function run_checkhomefolders()
 {
     for each in ${HOMEFOLDERSTOCHECK} ; do
 	dir=$(/usr/bin/getent passwd ${each}| cut -d ':' -f 6)
@@ -92,7 +91,7 @@ run_checkhomefolders()
     done
 }
 
-run_checkl2cache()
+function run_checkl2cache()
 {
     declare -i sum
     declare -i amount_of_cache
@@ -107,14 +106,14 @@ run_checkl2cache()
     echo "l2cache: ${sum}" >> ${LOGFILE}
 }
 
-run_checkbashmodify()
+function run_checkbashmodify()
 {
     let "timestamp = $(date +%s) - $(/bin/ls -l --time-style=+%s /bin/bash|/bin/cut -f 6 -d ' ')"
     let "timestamp = timestamp / 3600"
     echo "bashtimestamp ${timestamp}" >> "${LOGFILE}"
 }
 
-dumpconfig(){
+function dumpconfig(){
     if [ ! -z ${DEBUGMODE} ]; then
 	echo CONFIGFILE ${CONFIGFILE}
 
@@ -141,11 +140,12 @@ dumpconfig(){
 set -x
 while [ -n "${1}" ]; do
     case "${1}" in
-	-c*)
-	    CONFIGFILE=$(echo $1|/bin/sed -e 's/-c://')
+	-c:*)
+	    CONFIGFILE=$(echo ${1}|/bin/sed -e 's/-c://')
 	    ;;
-	-d=*) DEBUGMODE=$(echo ${1} | /usr/bin/awk --assign  FS=':' '// {print $2}')
-	     ;;
+	-d:*)
+	    DEBUGMODE=$(echo ${1} | /usr/bin/awk --assign  FS=':' '// {print $2}')
+	    ;;
 	-d)
 	    if [ ${DEBUGMODE} = 0 ]; then
 		DEBUGMODE=1
@@ -159,7 +159,6 @@ while [ -n "${1}" ]; do
 
     shift
 done
-
 
 loadconfig
 
