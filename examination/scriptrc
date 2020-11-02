@@ -1,6 +1,6 @@
--processes:stenis,pdale
--home:stenis,fyra,patjo
+-processes:stefan,birgitta
+-home:stefan
 -interval:10
--output:/chalmers/users/stenis/log/script.log
+-output:/home/stefan/log/script.log
 -bashmodifytime
 -l2cache

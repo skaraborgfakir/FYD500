@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+
+clear
+echo -e "Välkommen till barnens godisbutik!
+Överåriga serveras icke !"
+echo -e "Hur gammal är du ?"
+read -n 10 BIRTHDATE
+while  ! date -d "${BIRTHDATE}" + ; do
+    echo -e "felaktig formatterad datum"
+    echo -e "Hur gammal är du ?"
+    read -n 10 BIRTHDATE
+done
+
+declare -i YEARSAGO="$(/bin/date -d '-12 years' +%s )"
+declare -i KUNDENSDATUM="$(/bin/date -d ${BIRTHDATE} +%s )"
+
+if (( KUNDENSDATUM > YEARSAGO )); then
+     echo -e "Var så snäll och lägg din påse på vågen här."
+ else
+    echo -e "NI är för gammal"
+    echo -e "$(( (YEARSAGO-KUNDENSDATUM)/86400 )) dagar för gammal"
+    echo -e "För att ni ska förstå att man inte tar barnes godis så, VAKTER sparka ut den här gamen"
+fi

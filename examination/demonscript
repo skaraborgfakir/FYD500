@@ -1,11 +1,14 @@
 #!/bin/bash
 #
-# Time-stamp: <2019-06-17 17:07:45 stefan>
+# Time-stamp: <2019-06-17 18:09:51 stefan>
 #
 
 CMD_NAME=${0}
-DEBUGMODE=0
+declare -i DEBUGMODE=0
 CONFIGFILE=/home/stefan/etc/scriptrc
+
+DEFAULTLOGFILE=/home/stefan/log/default_script.log
+DEFAULTINTERVAL=10
 
 function usage(){
     cat - <<EOF
@@ -20,14 +23,27 @@ EOF
 
 function loadconfig(){
     #
+    if [ ! -r ${CONFIGFILE} ]; then
+	usage
+	exit 1
+    fi
+
+    #
     # flaggor med argument
     # ensamt argument
-    LOGFILE=$(/usr/bin/awk --assign  FS=':' 'BEGIN {res=1} /^-output:/ { res=0 ; print $2 ; exit res}'< ${CONFIGFILE})
-    INTERVAL=$(/usr/bin/awk --assign  FS=':' '/^-interval:/ {print $2}'< ${CONFIGFILE})
+    LOGFILE=$(/usr/bin/awk  --assign  FS=':' 'BEGIN {res=1} /^-output:/   {res=0 ; print $2} END { exit res}'< ${CONFIGFILE})
+    if [ $? != 0  ]; then
+	LOGFILE=${DEFAULTLOGFILE}
+    fi
+
+    INTERVAL=$(/usr/bin/awk --assign  FS=':' 'BEGIN {res=1} /^-interval:/ {res=0 ; print $2} END { exit res}'< ${CONFIGFILE})
+    if [ $? != 0  ]; then
+	INTERVAL=${DEFAULTINTERVAL}
+    fi
 
     #
     # flera argument
-    HOMEFOLDERSTOCHECK=$(/usr/bin/awk --assign FS=':' '/^-home:/ {homedirs=gensub(/,/, " ", "g", $2); print homedirs}'< ${CONFIGFILE})
+    HOMEFOLDERSTOCHECK=$(/usr/bin/awk --assign FS=':' '/^-home:/ {homedirs=gensub(/,/, " ", "g", $2); print homedirs} '< ${CONFIGFILE})
     PROCSTOCHECK=$(/usr/bin/awk --assign  FS=':' '/^-processes:/ {procs=gensub(/,/, " ", "g", $2); print procs}'< ${CONFIGFILE})
 
     #
@@ -40,7 +56,7 @@ function loadconfig(){
 	checkl2cache=true
     fi
 
-    if [ ${DEBUGMODE} = "0" ]; then
+    if [ ${DEBUGMODE} = 0 ]; then
 	DEBUGMODE=$(/usr/bin/awk --assign FS=':' 'BEGIN {res=0} /^-DEBUGMODE:/ {print $2}' < ${CONFIGFILE});
     fi
 
@@ -56,14 +72,17 @@ function reloadconfig()
 {
     echo config reload at $(/bin/date)
     loadconfig
+
+    if [ ${DEBUGMODE} != 0 ]; then
+	dumpconfig
+    fi
 }
 
 function copyloggandquit(){
-    current_basename=$(/bin/basename ${LOGFILE})
+    current_basename=$(/usr/bin/basename ${LOGFILE})
     logdir=$(dirname ${LOGFILE})
 
     cd ${logdir}
-    #    /bin/cp $(/bin/basename ${LOGFILE}) $(/bin/basename ${LOGFILE}).$(/bin/date +%H%M_%Z)
     /usr/bin/link ${current_basename} ${current_basename}.$(/bin/date +%H%M_%Z)
     /bin/rm ${current_basename} && /usr/bin/touch ${current_basename}
 
@@ -84,9 +103,9 @@ function run_checkprocesses()
 function run_checkhomefolders()
 {
     for each in ${HOMEFOLDERSTOCHECK} ; do
-	dir=$(/usr/bin/getent passwd ${each}| cut -d ':' -f 6)
-	if [ -d ${dir} ]; then
-	    echo "homefolderscheck ${each} $(/bin/du -s ${dir} |cut -f 1 -d ' ')" >> ${LOGFILE}
+	dirs=$(/usr/bin/getent passwd ${each}| /usr/bin/cut -d ':' -f 6)
+	if [ -d ${dirs} ]; then
+	    echo "homefolderscheck ${each} $(/usr/bin/du -s ${dirs} |cut -f 1 -d ' ')" >> ${LOGFILE}
 	fi
     done
 }
@@ -108,13 +127,13 @@ function run_checkl2cache()
 
 function run_checkbashmodify()
 {
-    let "timestamp = $(date +%s) - $(/bin/ls -l --time-style=+%s /bin/bash|/bin/cut -f 6 -d ' ')"
+    let "timestamp = $(/bin/date +%s) - $(/bin/ls -l --time-style=+%s /bin/bash|/usr/bin/cut -f 6 -d ' ')"
     let "timestamp = timestamp / 3600"
     echo "bashtimestamp ${timestamp}" >> "${LOGFILE}"
 }
 
 function dumpconfig(){
-    if [ ! -z ${DEBUGMODE} ]; then
+    if [ ${DEBUGMODE} != 0 ]; then
 	echo CONFIGFILE ${CONFIGFILE}
 
 	echo LOGFILE $LOGFILE
@@ -137,7 +156,6 @@ function dumpconfig(){
 #
 # what to be done
 #
-set -x
 while [ -n "${1}" ]; do
     case "${1}" in
 	-c:*)
@@ -166,9 +184,7 @@ if [ "${DEBUGMODE}" != "0" ]; then
     dumpconfig
 fi
 
-set +x
-
-if [ -w ${LOGFILE} ]; then
+if [ ! -w ${LOGFILE} ]; then
     exit 5
 fi
 
@@ -177,13 +193,14 @@ trap reloadconfig 1
 # fånga INTERRUPT - kopiera logg och avsluta
 trap copyloggandquit 2
 
-exit 1
-
 #
 # work !
 #
 cat /dev/null > ${LOGFILE}
+
 while : ; do
+    starttime=$(/bin/date +%s)
+    echo starttime: ${starttime} >> ${LOGFILE}
     if [ $checkl2cache="true" ]; then
 	run_checkl2cache
     fi
@@ -200,5 +217,10 @@ while : ; do
 	run_checkbashmodify
     fi
 
-    sleep ${INTERVAL}
+    echo -e "\n" >> ${LOGFILE}
+    let "sleepperiod = starttime + INTERVAL - $(/bin/date +%s)"
+
+    sleep ${sleepperiod} &
+
+    wait $!
 done
